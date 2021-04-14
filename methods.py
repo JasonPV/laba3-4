@@ -174,6 +174,23 @@ def get_vote(train, test):
     res = list(map(lambda x: max(x, key=x.count), res))
     return res, params
 
+def get_vote_1(train, test, p):
+    methods = ['get_histogram', 'get_dft', 'get_dct', 'get_gradient', 'get_scale']
+    results = []
+    k = 0
+    for m in methods:
+        if m == 'get_scale':
+            par = float(p[k].text())
+        else:
+            par = int(p[k].text())
+        results.append(classifier(train, test, eval(m), par))
+        k+=1
+    results = np.array(results)
+    res = results.transpose()
+    res = res.tolist()
+    res = list(map(lambda x: max(x, key=x.count), res))
+    return res
+
 
 if __name__ == '__main__':
     data = get_data()
