@@ -149,6 +149,32 @@ class Example(QWidget):
             row += 1
         self.table.move(1650, 40)
 
+        #######################################################
+        text = QLabel('5) Enter params for voting:', self)
+        text.move(1250, 550)
+        lbl_last = []
+        for i in ['get_histogram', 'get_dft', 'get_dct', 'get_gradient', 'get_scale']:
+            lbl_last.append(QLabel(i, self))
+
+        k = 0
+        for i in lbl_last:
+            i.move(1250, 600+k*50)
+            k+=1
+
+        self.textboxs = []
+        for i in range(5):
+            self.textboxs.append(QLineEdit(self))
+
+        k = 0
+        for i in self.textboxs:
+            i.move(1350, 600 + k * 50)
+            k += 1
+
+        btn_last = QPushButton('Enter', self)
+        btn_last.move(1250, 850)
+        btn_last.clicked.connect(self.last)
+        self.last_pixmap = QLabel(self)
+        self.last_pixmap.move(1550, 850)
         ########################################################
         self.setGeometry(QDesktopWidget().availableGeometry())
         self.setWindowTitle('Classifier')
@@ -273,6 +299,25 @@ class Example(QWidget):
             for j in range(6):
                 cellinfo = QTableWidgetItem(str(ps[i][j]))
                 self.table.setItem(i+1, j+1, cellinfo)
+
+    def last(self):
+        data = get_data()
+        accuracy = []
+        for i in range(9, 0, -1):
+            data_train, data_test = get_split_data(data, i)
+            r = get_vote_1(data_train, data_test, self.textboxs)
+            a = accuracy_score(r, data_test[1])
+            accuracy.append(a)
+        fig, ax = plt.subplots(figsize=(3.2, 2.5))
+        plt.plot(range(1, len(accuracy) + 1), accuracy)
+        plt.grid(True)
+        plt.xlabel("Number of test")
+        plt.ylabel("Accuracy")
+        plt.savefig('plot1.png')
+        plt.close()
+        pixmap2 = QPixmap('plot1.png')
+        self.last_pixmap.setPixmap(pixmap2)
+        self.last_pixmap.adjustSize()
 
 
 if __name__ == '__main__':
