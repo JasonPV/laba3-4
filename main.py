@@ -29,7 +29,7 @@ class Example(QWidget):
         ###########################################################
         #split data
         lbl_split = QLabel(self)
-        lbl_split.setText('Enter the number of the test sample')
+        lbl_split.setText('Enter the number of the test')
         self.qle_1 = QLineEdit(self)
         self.qle_1.move(100, 100)
         lbl_split.move(60, 40)
