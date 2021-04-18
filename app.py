@@ -1,8 +1,5 @@
 import sys
-import time
 import matplotlib.pyplot as plt
-import numpy as np
-import getch
 from statistics import mean
 from methods import *
 from PyQt5.QtWidgets import *
@@ -197,7 +194,7 @@ class mainWindow(QWidget):
         #################################################
         #tab 4
         self.qle_split_4 = QLineEdit()
-        layout_split_data = QHBoxLayout(spacing=50)
+        layout_split_data = QHBoxLayout(spacing=92)
         layout_split_data.addWidget(QLabel('Split data:'))
         layout_split_data.addWidget(self.qle_split_4)
         layout_split_data.addStretch(1)
@@ -238,6 +235,11 @@ class mainWindow(QWidget):
         self.layout_tab_4.addWidget(btn_start_4, alignment=Qt.AlignLeft)
         self.layout_tab_4.addStretch(1)
         self.tab_4.setLayout(self.layout_tab_4)
+
+
+        ###################################################
+        
+        ###################################################
 
         ###################################################
         self.tab = QTabWidget(self)
@@ -400,7 +402,7 @@ class mainWindow(QWidget):
             r = classifier(data_train, data_test, method, best_p)
             a = accuracy_score(r, data_test[1])
             self.qle_best_ac.setText(str(round(a, 2)))
-        self.qle_best_param.setReadOnly(True)
+        # self.qle_best_param.setReadOnly(True)
 
         fig = plt.figure(figsize=(12, 12))
         ax1 = fig.add_subplot(3, 2, 1)
@@ -448,7 +450,7 @@ class mainWindow(QWidget):
             self.get_plot(method, data_test[0][i], best_p, ax3)
 
             self.get_plot(method, im, best_p, ax4)
-
+            plt.pause(2)
             fig.show()
             fig.canvas.draw()
 
@@ -474,7 +476,104 @@ class mainWindow(QWidget):
             self.qle_cv_p[i].setText(str(round(ps[i], 2)))
 
     def on_click_start_4(self):
-        pass
+        test = int(self.qle_split_4.text())
+        methods = ["histogram", "dft", "dct", "gradient", "scale"]
+        data = get_data()
+        data_train, data_test = get_split_data(data, test)
+        result = []
+        for i in range(len(methods)):
+            method = eval('get_'+methods[i])
+            if self.qle_ps[i].text() == '':
+                best_p, a = get_best_params(data_train, data_test, method)
+                r = classifier(data_train, data_test, method, best_p)
+                self.qle_ps[i].setText(str(round(best_p, 2)))
+                # self.qle_ps[i].setReadOnly(True)
+                self.qle_acs[i].setText(str(round(a, 2)))
+            else:
+                if method == get_scale:
+                    best_p = float(self.qle_ps[i].text())
+                else:
+                    best_p = int(self.qle_ps[i].text())
+                r = classifier(data_train, data_test, method, best_p)
+                a = accuracy_score(r, data_test[1])
+                self.qle_acs[i].setText(str(round(a, 2)))
+            result.append(r)
+
+        result = np.array(result)
+        result = result.transpose()
+        result = result.tolist()
+        result = list(map(lambda x: max(x, key=x.count), result))
+        ac = accuracy_score(result, data_test[1])
+        self.qle_acs[-1].setText(str(round(ac, 2)))
+
+        fig = plt.figure(figsize=(12, 12))
+        ax_im = []
+        ax_f = []
+        for i in range(6):
+            ax_im.append(fig.add_subplot(3, 6, i+1))
+            ax_f.append(fig.add_subplot(3, 6, i+7))
+        ax = fig.add_subplot(3, 1, 3)
+        ax.set_xlim(0, len(data_test[0]))
+        ax.set_ylim(0, 1.2)
+        plt.ion()
+        res = {"histogram":[], "dft":[], "dct":[], "gradient":[], "scale":[], "voting":[]}
+
+        for k in range(len(data_test[0])):
+            ax_im[0].clear()
+            ax_im[0].set_title('Test image:')
+            # ax_f[0].clear()
+            for i in range(1, 6):
+                ax_im[i].clear()
+                ax_im[i].set_title(methods[i-1] + ':')
+                ax_f[i].clear()
+            ax.clear()
+            ax.set_xlabel('Test number')
+            ax.set_ylabel('Accuracy')
+            ax.set_xlim(0, len(data_test[0]))
+            ax.set_ylim(0, 1.2)
+
+            image = cv2.resize(data_test[0][k], (100, 100), interpolation=cv2.INTER_AREA)
+            cv2.imwrite('test.jpg', 255 * image)
+            image = plt.imread('test.jpg')
+            ax_im[0].imshow(image, cmap='gray')
+
+            # self.get_plot(get_dft, data_test[0][k], 10, ax_f[0])
+
+            for i in range(5):
+                method = eval('get_'+methods[i])
+                if method == get_scale:
+                    p = float(self.qle_ps[i].text())
+                else:
+                    p = int(self.qle_ps[i].text())
+
+                ind = closest(data_train, data_test[0][k], method, p)
+                image = cv2.resize(data_train[0][ind], (100, 100), interpolation=cv2.INTER_AREA)
+                cv2.imwrite('test.jpg', 255 * image)
+                image = plt.imread('test.jpg')
+                ax_im[i+1].imshow(image, cmap='gray')
+                self.get_plot(method, data_train[0][ind], p, ax_f[i+1])
+
+                if data_test[1][k] == data_train[1][ind]:
+                    res[methods[i]].append(1)
+                else:
+                    res[methods[i]].append(0)
+
+
+            if data_test[1][k] == result[k]:
+                res['voting'].append(1)
+            else:
+                res['voting'].append(0)
+            data = []
+            for m in res.keys():
+                data.append([mean(res[m][:i+1]) for i in range(len(res[m]))])
+            for y in data:
+                ax.plot([i for i in range(len(res['voting']))], y)
+            ax.legend(["histogram", "dft", "dct", "gradient", "scale", "voting"])
+            plt.pause(2)
+            fig.show()
+            fig.canvas.draw()
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
