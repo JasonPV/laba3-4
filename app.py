@@ -2,7 +2,7 @@ import sys
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-import keyboard
+import getch
 from statistics import mean
 from methods import *
 from PyQt5.QtWidgets import *
@@ -126,7 +126,7 @@ class mainWindow(QWidget):
         self.qle_best_param = QLineEdit()
         # self.qle_best_param.setReadOnly(True)
         layout_btn_and_par.addWidget(self.qle_best_param)
-        layout_btn_and_par.addWidget(QLabel('Accuracy on test', self))
+        layout_btn_and_par.addWidget(QLabel('Accuracy on test:', self))
         self.qle_best_ac = QLineEdit()
         self.qle_best_ac.setReadOnly(True)
         layout_btn_and_par.addWidget(self.qle_best_ac)
@@ -195,10 +195,56 @@ class mainWindow(QWidget):
 
 
         #################################################
+        #tab 4
+        self.qle_split_4 = QLineEdit()
+        layout_split_data = QHBoxLayout(spacing=50)
+        layout_split_data.addWidget(QLabel('Split data:'))
+        layout_split_data.addWidget(self.qle_split_4)
+        layout_split_data.addStretch(1)
+
+
+        layout_methods = QHBoxLayout(spacing=70)
+        layout_methods.addWidget(QLabel('Methods:        '))
+        for i in ["histogram            ", "dft                      ", "dct                       ", "gradient               ", "scale                  ", "voting"]:
+            layout_methods.addWidget(QLabel(i))
+        layout_methods.addStretch(1)
+
+        layout_accuracy = QHBoxLayout(spacing=50)
+        layout_accuracy.addWidget(QLabel('Accuracy on test:'))
+        layout_params = QHBoxLayout(spacing=50)
+        layout_params.addWidget(QLabel('Param:                '))
+        self.qle_ps = []
+        self.qle_acs = []
+        for i in range(6):
+            self.qle_acs.append(QLineEdit())
+            layout_accuracy.addWidget(self.qle_acs[i])
+            self.qle_acs[i].setReadOnly(True)
+            self.qle_ps.append(QLineEdit())
+            layout_params.addWidget(self.qle_ps[i])
+        self.qle_ps[-1].setReadOnly(True)
+        self.qle_ps[-1].setText('Not param')
+        layout_params.addStretch(1)
+        layout_accuracy.addStretch(1)
+
+        btn_start_4 = QPushButton('start', self)
+        btn_start_4.clicked.connect(self.on_click_start_4)
+
+        self.tab_4 = QFrame()
+        self.layout_tab_4 = QVBoxLayout(spacing=50)
+        self.layout_tab_4.addLayout(layout_split_data)
+        self.layout_tab_4.addLayout(layout_methods)
+        self.layout_tab_4.addLayout(layout_accuracy)
+        self.layout_tab_4.addLayout(layout_params)
+        self.layout_tab_4.addWidget(btn_start_4, alignment=Qt.AlignLeft)
+        self.layout_tab_4.addStretch(1)
+        self.tab_4.setLayout(self.layout_tab_4)
+
+        ###################################################
         self.tab = QTabWidget(self)
         self.tab.addTab(self.tab_1, "Example")
         self.tab.addTab(self.tab_2, "Best param")
         self.tab.addTab(self.tab_3, "Cross-validate")
+        self.tab.addTab(self.tab_4, 'Voting')
 
         main_layout = QHBoxLayout()
         main_layout.addWidget(self.tab)
@@ -405,9 +451,6 @@ class mainWindow(QWidget):
 
             fig.show()
             fig.canvas.draw()
-            if keyboard.is_pressed('esc'):
-                break
-            plt.pause(2)
 
     def on_click_cross_validate(self):
         data = get_data()
@@ -429,6 +472,9 @@ class mainWindow(QWidget):
         for i in range(len(ans)):
             self.qle_cv_a[i].setText(str(round(ans[i], 2)))
             self.qle_cv_p[i].setText(str(round(ps[i], 2)))
+
+    def on_click_start_4(self):
+        pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
