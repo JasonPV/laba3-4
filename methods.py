@@ -66,6 +66,7 @@ def distance(el1, el2):
     return np.linalg.norm(np.array(el1) - np.array(el2))
 
 
+
 def classifier(train, data, method, param):
     assert method in [get_scale, get_histogram, get_dct, get_dft, get_gradient]
     feature_samples = get_feature(train[0], method, param)
@@ -83,6 +84,22 @@ def classifier(train, data, method, param):
         result.append(train[1][cl])
     # accuracy = accuracy_score(result, data[1])
     return result
+
+def closest(train, test, m, p):
+    feature_samples = get_feature(train[0], m, p)
+    featrue_test = m(test, p)
+    if m == get_histogram:
+        featrue_test = featrue_test[0]
+    buf = 0
+    mn = distance(featrue_test, feature_samples[0])
+    for i in range(1, len(feature_samples)):
+        dist = distance(featrue_test, feature_samples[i])
+        if dist < mn:
+            mn = dist
+            buf = i
+
+    return buf
+
 
 
 def get_best_params(train, test, method):
@@ -111,7 +128,7 @@ def get_best_params(train, test, method):
 def get_split_data(data, num=2):
     # random.seed(41)
     ran = [int(i) for i in range(10)]
-    random.shuffle(ran)
+    # random.shuffle(ran)
     ran = ran[:num]
     X = data[0]
     y = data[1]
