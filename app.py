@@ -1,5 +1,6 @@
 import sys
 import matplotlib.pyplot as plt
+import collections
 from statistics import mean
 from methods import *
 from PyQt5.QtWidgets import *
@@ -335,7 +336,7 @@ class mainWindow(QWidget):
             ex = method(im, best_p)
             # fig = plt.figure(figsize=(1.1, 1.1))
             # ax = fig.add_subplot(111)
-            ax.pcolormesh(range(ex.shape[0]), range(ex.shape[0]), np.flip(ex, 0))
+            ax.pcolormesh(range(ex.shape[0]), range(ex.shape[0]), np.flip(ex, 0), cmap='gray')
             # plt.xticks(color='w')
             # plt.yticks(color='w')
             # plt.savefig('plot.png')
@@ -372,7 +373,7 @@ class mainWindow(QWidget):
             ex = method(im, best_p)
             fig = plt.figure(figsize=(1.1, 1.1))
             ax = fig.add_subplot(111)
-            plt.pcolormesh(range(ex.shape[0]), range(ex.shape[0]), np.flip(ex, 0))
+            plt.pcolormesh(range(ex.shape[0]), range(ex.shape[0]), np.flip(ex, 0), cmap='gray')
             plt.xticks(color='w')
             plt.yticks(color='w')
             plt.savefig('plot.png')
@@ -608,7 +609,8 @@ class mainWindow(QWidget):
         for k in range(len(data_test[0])):
             ax_im[0].clear()
             ax_im[0].set_title('Test image:')
-            # ax_f[0].clear()
+            ax_f[0].clear()
+            ax_f[0].set_title('Voting:')
             for i in range(1, 6):
                 ax_im[i].clear()
                 ax_im[i].set_title(methods[i-1] + ':')
@@ -626,6 +628,7 @@ class mainWindow(QWidget):
 
             # self.get_plot(get_dft, data_test[0][k], 10, ax_f[0])
 
+            votings = []
             for i in range(5):
                 method = eval('get_'+methods[i])
                 if method == get_scale:
@@ -634,6 +637,7 @@ class mainWindow(QWidget):
                     p = int(self.qle_ps[i].text())
 
                 ind = closest(data_train, data_test[0][k], method, p)
+                votings.append(ind)
                 image = cv2.resize(data_train[0][ind], (100, 100), interpolation=cv2.INTER_AREA)
                 cv2.imwrite('test.jpg', 255 * image)
                 image = plt.imread('test.jpg')
@@ -646,6 +650,14 @@ class mainWindow(QWidget):
                     res[methods[i]].append(0)
 
 
+            ind_vot = collections.Counter(set(votings)).most_common()
+            print(ind_vot)
+            image = cv2.resize(data_train[0][ind_vot[0][0]], (100, 100), interpolation=cv2.INTER_AREA)
+            cv2.imwrite('test.jpg', 255 * image)
+            image = plt.imread('test.jpg')
+            ax_f[0].imshow(image, cmap='gray')
+
+
             if data_test[1][k] == result[k]:
                 res['voting'].append(1)
             else:
@@ -653,9 +665,10 @@ class mainWindow(QWidget):
             data = []
             for m in res.keys():
                 data.append([mean(res[m][:i+1]) for i in range(len(res[m]))])
-            for y in data:
-                ax.plot([i for i in range(len(res['voting']))], y)
-            ax.legend(["histogram", "dft", "dct", "gradient", "scale", "voting"])
+            # for y in data:
+            #     ax.plot([i for i in range(len(res['voting']))], y)
+            ax.plot([i for i in range(len(data[-1]))], data[-1])
+            ax.legend(['voting'])#["histogram", "dft", "dct", "gradient", "scale", "voting"])
             plt.pause(2)
             fig.show()
             fig.canvas.draw()
