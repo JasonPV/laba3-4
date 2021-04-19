@@ -4,7 +4,7 @@ from statistics import mean
 from methods import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore    import *
+from PyQt5.QtCore import *
 
 
 class mainWindow(QWidget):
@@ -35,11 +35,11 @@ class mainWindow(QWidget):
         btn_num.clicked.connect(self.on_click_num_example)
         self.qle_split = QLineEdit()
         self.qle_number_of_image = QLineEdit()
-        layout_num_image = QHBoxLayout(spacing=50)
-        layout_num_image.addWidget(btn_num)
-        layout_num_image.addWidget(self.qle_split)
-        layout_num_image.addWidget(self.qle_number_of_image)
-        layout_num_image.addStretch(1)
+        # layout_num_image = QHBoxLayout(spacing=50)
+        # layout_num_image.addWidget(btn_num)
+        # layout_num_image.addWidget(self.qle_split)
+        # layout_num_image.addWidget(self.qle_number_of_image)
+        # layout_num_image.addStretch(1)
 
         lbl_param_1 = QLabel('Choose param:', self)
         lbl_method_1 = QLabel('Choose method:', self)
@@ -88,10 +88,10 @@ class mainWindow(QWidget):
 
         # self.layout_full.addWidget(layout_num_image)
         # self.layout_full.addStretch(1)
-        self.layout_tab_1.addLayout(layout_txt)
-        self.layout_tab_1.addLayout(layout_num_image)
-        self.layout_tab_1.addLayout(layout_images)
-        self.layout_tab_1.addLayout(layout_features)
+        # self.layout_tab_1.addLayout(layout_txt)
+        # self.layout_tab_1.addLayout(layout_num_image)
+        # self.layout_tab_1.addLayout(layout_images)
+        # self.layout_tab_1.addLayout(layout_features)
         self.layout_tab_1.addStretch(1)
         self.layout_line.addStretch(1)
         self.layout_second_line.addStretch(1)
@@ -120,6 +120,7 @@ class mainWindow(QWidget):
         layout_btn_and_par = QHBoxLayout(spacing=50)
         # layout_btn_and_par.addWidget(btn_start_best)
         layout_btn_and_par.addWidget(QLabel('Param:', self))
+        layout_btn_and_par.addSpacing(47)
         self.qle_best_param = QLineEdit()
         # self.qle_best_param.setReadOnly(True)
         layout_btn_and_par.addWidget(self.qle_best_param)
@@ -129,12 +130,21 @@ class mainWindow(QWidget):
         layout_btn_and_par.addWidget(self.qle_best_ac)
         layout_btn_and_par.addStretch(1)
 
+        layout = QHBoxLayout(spacing=50)
+        layout.addWidget(QLabel('Num of image:'))
+        layout.addWidget(self.qle_number_of_image)
+        layout.addStretch(1)
+
         self.tab_2 = QFrame()
         self.layout_tab_2 = QVBoxLayout(spacing=50)
         self.layout_tab_2.addLayout(layout_line_2)
         self.layout_tab_2.addLayout(layout_line_22)
         self.layout_tab_2.addWidget(btn_start_best, alignment=Qt.AlignLeft)
         self.layout_tab_2.addLayout(layout_btn_and_par)
+        self.layout_tab_2.addLayout(layout)
+        self.layout_tab_2.addWidget(btn_num, alignment=Qt.AlignLeft)
+        self.layout_tab_2.addLayout(layout_images)
+        self.layout_tab_2.addLayout(layout_features)
         # self.layout_tab_2.addLayout(layout_boxes_2)
         self.layout_tab_2.addStretch(1)
         self.tab_2.setLayout(self.layout_tab_2)
@@ -238,7 +248,60 @@ class mainWindow(QWidget):
 
 
         ###################################################
-        
+        self.tab_5 = QFrame()
+        btn_start_5 = QPushButton('start', self)
+        btn_start_5.clicked.connect(self.on_click_start_5)
+        layout_txt_5 = QHBoxLayout(spacing=120)
+        layout_txt_5.addSpacing(70)
+        for i in ["histogram", "dft    ", "dct", "gradient", "scale", "voting"]:
+            layout_txt_5.addWidget(QLabel(i))
+        layout_txt_5.addStretch(1)
+
+        layout_h = QHBoxLayout(spacing=30)
+        layouts = []
+        layouts_b = QVBoxLayout(spacing=71)
+        layouts_b.addSpacing(20)
+        layout_h.addLayout(layouts_b)
+        for j in range(9):
+            layouts_b.addWidget(QLabel(str(j+1)))
+        layouts_b.addStretch(1)
+
+        for i in range(6):
+            layouts.append(QVBoxLayout(spacing=10))
+            layout_h.addLayout(layouts[i])
+        self.qles = []
+        for i in range(5):
+            self.qles.append([])
+            for j in range(18):
+                self.qles[i].append(QLineEdit())
+                self.qles[i][j].setReadOnly(True)
+                layouts[i].addWidget(self.qles[i][j])
+                if j%2 == 1:
+                    layouts[i].addSpacing(20)
+            layouts[i].addStretch(1)
+        self.qle_a_f = []
+        layouts[5].addSpacing(18)
+        for i in range(9):
+            self.qle_a_f.append(QLineEdit())
+            self.qle_a_f[i].setReadOnly(True)
+            layouts[5].addWidget(self.qle_a_f[i])
+            layouts[5].addSpacing(53)
+        layouts[5].addStretch(1)
+
+
+        self.lbl_final = QLabel(self)
+        layout_h.addWidget(self.lbl_final)
+        layout_h.addStretch(1)
+
+
+
+        self.layout_tab_5 = QVBoxLayout(spacing=50)
+        self.layout_tab_5.addWidget(btn_start_5, alignment=Qt.AlignLeft)
+        self.layout_tab_5.addLayout(layout_txt_5)
+        self.layout_tab_5.addLayout(layout_h)
+
+        self.layout_tab_5.addStretch(1)
+        self.tab_5.setLayout(self.layout_tab_5)
         ###################################################
 
         ###################################################
@@ -247,6 +310,7 @@ class mainWindow(QWidget):
         self.tab.addTab(self.tab_2, "Best param")
         self.tab.addTab(self.tab_3, "Cross-validate")
         self.tab.addTab(self.tab_4, 'Voting')
+        self.tab.addTab(self.tab_5, 'Voting cross-validate')
 
         main_layout = QHBoxLayout()
         main_layout.addWidget(self.tab)
@@ -263,8 +327,8 @@ class mainWindow(QWidget):
             # fig = plt.figure(figsize=(1.1, 1.1))
             # ax = fig.add_subplot(111)
             ax.plot(bins, hist)
-            plt.xticks(color='w')
-            plt.yticks(color='w')
+            # plt.xticks(color='w')
+            # plt.yticks(color='w')
             # plt.savefig('plot.png')
             # plt.close(fig)
         elif method == get_dct or method == get_dft:
@@ -272,8 +336,8 @@ class mainWindow(QWidget):
             # fig = plt.figure(figsize=(1.1, 1.1))
             # ax = fig.add_subplot(111)
             ax.pcolormesh(range(ex.shape[0]), range(ex.shape[0]), np.flip(ex, 0))
-            plt.xticks(color='w')
-            plt.yticks(color='w')
+            # plt.xticks(color='w')
+            # plt.yticks(color='w')
             # plt.savefig('plot.png')
             # plt.close(fig)
         elif method == get_scale:
@@ -288,8 +352,8 @@ class mainWindow(QWidget):
             # fig = plt.figure(figsize=(1.1, 1.1))
             # ax = fig.add_subplot(111)
             ax.plot(range(0, len(ex)), ex)
-            plt.xticks(color='w')
-            plt.yticks(color='w')
+            # plt.xticks(color='w')
+            # plt.yticks(color='w')
             # plt.savefig('plot.png')
             # plt.close(fig)
 
@@ -316,6 +380,7 @@ class mainWindow(QWidget):
         elif method == get_scale:
             image = cv2.resize(im, (100, 100), interpolation=cv2.INTER_AREA)
             image = method(image, best_p)
+            image = cv2.resize(image, (100, 100), interpolation=cv2.INTER_AREA)
             cv2.imwrite('plot.png', 255 * image)
 
         else:
@@ -329,12 +394,12 @@ class mainWindow(QWidget):
             plt.close(fig)
 
     def on_click_num_example(self):
-        method = eval('get_' + self.combo_method_1.currentText())
+        method = eval('get_' + self.combo_method_2.currentText())
+        test = int(self.qle_test_2.text())
         if method == get_scale:
-            param = float(self.qle_exapmle.text())
+            param = float(self.qle_best_param.text())
         else:
-            param = int(self.qle_exapmle.text())
-        test = int(self.qle_split.text())
+            param = int(self.qle_best_param.text())
         num = int(self.qle_number_of_image.text())
         data = get_data()
         data_train, data_test = get_split_data(data, test)
@@ -373,13 +438,35 @@ class mainWindow(QWidget):
             param = int(self.qle_exapmle.text())
 
         data = get_data()
-        for i in range(5):
+        for i in range(2):
             image = cv2.resize(data[0][i], (100, 100), interpolation=cv2.INTER_AREA)
             cv2.imwrite('test.jpg', 255 * image)
             pixmap = QPixmap('test.jpg')
             self.lbl_image[i].setPixmap(pixmap)
             self.lbl_image[i].adjustSize()
             self.get_plot_1(method, data[0][i], param)
+            pixmap1 = QPixmap('plot.png')
+            self.lbl_feature[i].setPixmap(pixmap1)
+            self.lbl_feature[i].adjustSize()
+
+        image = cv2.resize(data[0][50], (100, 100), interpolation=cv2.INTER_AREA)
+        cv2.imwrite('test.jpg', 255 * image)
+        pixmap = QPixmap('test.jpg')
+        self.lbl_image[2].setPixmap(pixmap)
+        self.lbl_image[2].adjustSize()
+        self.get_plot_1(method, data[0][50], param)
+        pixmap1 = QPixmap('plot.png')
+        self.lbl_feature[2].setPixmap(pixmap1)
+        self.lbl_feature[2].adjustSize()
+
+        for i in range(3, 5):
+            ind = random.randint(3, len(data[0])-1)
+            image = cv2.resize(data[0][ind], (100, 100), interpolation=cv2.INTER_AREA)
+            cv2.imwrite('test.jpg', 255 * image)
+            pixmap = QPixmap('test.jpg')
+            self.lbl_image[i].setPixmap(pixmap)
+            self.lbl_image[i].adjustSize()
+            self.get_plot_1(method, data[0][ind], param)
             pixmap1 = QPixmap('plot.png')
             self.lbl_feature[i].setPixmap(pixmap1)
             self.lbl_feature[i].adjustSize()
@@ -573,6 +660,48 @@ class mainWindow(QWidget):
             fig.show()
             fig.canvas.draw()
 
+
+    def on_click_start_5(self):
+        plot = []
+        data = get_data()
+        ps = []
+        for i in range(9, 0, -1):
+            data_train, data_test = get_split_data(data, i)
+            r, a, p = get_vote(data_train, data_test)
+            ps.append(p)
+            ac = accuracy_score(r, data_test[1])
+            a.append(ac)
+            plot.append(a)
+
+
+        fin = []
+        for i in range(len(plot)):
+            fin.append(plot[i])
+            fin.append(ps[i])
+
+
+        for i in range(len(plot[0])-1):
+            for j in range(0, 17, 2):
+                self.qles[i][j].setText(str(round(fin[j][i], 2)))
+                self.qles[i][j+1].setText(str(round(fin[j+1][i], 2)))
+
+        for i in range(9):
+            self.qle_a_f[i].setText(str(round(plot[i][-1], 2)))
+
+        fig, ax = plt.subplots(figsize=(4.5, 4.5))
+        # ax = fig.add_subplot(111)
+        plot = np.array(plot)
+        plot = plot.transpose()
+        for i in plot:
+            plt.plot([j for j in range(1, len(i) + 1)], i)
+        plt.grid(True)
+        plt.legend(["histogram", "dft", "dct", "gradient", "scale", "voting"])
+        plt.title('cross validate')
+        plt.xlabel("Number of train")
+        plt.ylabel("Accuracy")
+        plt.savefig('plot1.png')
+        pixmap = QPixmap('plot1.png')
+        self.lbl_final.setPixmap(pixmap)
 
 
 if __name__ == '__main__':

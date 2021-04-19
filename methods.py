@@ -181,15 +181,17 @@ def get_vote(train, test):
     methods = ['get_histogram', 'get_dft', 'get_dct', 'get_gradient', 'get_scale']
     results = []
     params = []
+    acs = []
     for m in methods:
         p, a = get_best_params(train, test, eval(m))
         results.append(classifier(train, test, eval(m), p))
-        params.append(a)
+        params.append(p)
+        acs.append(a)
     results = np.array(results)
     res = results.transpose()
     res = res.tolist()
     res = list(map(lambda x: max(x, key=x.count), res))
-    return res, params
+    return res, acs, params
 
 def get_vote_1(train, test, p):
     methods = ['get_histogram', 'get_dft', 'get_dct', 'get_gradient', 'get_scale']
