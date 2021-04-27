@@ -504,6 +504,15 @@ class mainWindow(QWidget):
         ax.set_ylim(0, 1)
         plt.ion()
         res = []
+
+        for i in range(len(data_test[0])):
+            ind = closest(data_train, data_test[0][i], method, best_p)
+            im = data_train[0][ind]
+            if data_test[1][i] == data_train[1][ind]:
+                res.append(1)
+            else:
+                res.append(0)
+
         for i in range(len(data_test[0])):
             ax1.clear()
             ax2.clear()
@@ -523,10 +532,10 @@ class mainWindow(QWidget):
 
             ind = closest(data_train, data_test[0][i], method, best_p)
             im = data_train[0][ind]
-            if data_test[1][i] == data_train[1][ind]:
-                res.append(1)
-            else:
-                res.append(0)
+            # if data_test[1][i] == data_train[1][ind]:
+            #     res.append(1)
+            # else:
+            #     res.append(0)
 
             ax.plot([i for i in range(len(res))], [mean(res[:i+1]) for i in range(len(res))])
 
@@ -607,6 +616,12 @@ class mainWindow(QWidget):
         res = {"histogram":[], "dft":[], "dct":[], "gradient":[], "scale":[], "voting":[]}
 
         for k in range(len(data_test[0])):
+            if data_test[1][k] == result[k]:
+                res['voting'].append(1)
+            else:
+                res['voting'].append(0)
+
+        for k in range(len(data_test[0])):
             ax_im[0].clear()
             ax_im[0].set_title('Test image:')
             ax_f[0].clear()
@@ -662,12 +677,10 @@ class mainWindow(QWidget):
                 res['voting'].append(1)
             else:
                 res['voting'].append(0)
-            data = []
-            for m in res.keys():
-                data.append([mean(res[m][:i+1]) for i in range(len(res[m]))])
+            data = [mean(res['voting'][:i+1]) for i in range(len(res['voting']))]
             # for y in data:
             #     ax.plot([i for i in range(len(res['voting']))], y)
-            ax.plot([i for i in range(len(data[-1]))], data[-1])
+            ax.plot([i for i in range(len(data))], data)
             ax.legend(['voting'])#["histogram", "dft", "dct", "gradient", "scale", "voting"])
             plt.pause(2)
             fig.show()
